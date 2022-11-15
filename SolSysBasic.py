@@ -6,6 +6,7 @@ import datetime
 pygame.font.init()
 pygame.init()
 
+# define window params
 WINDOW_HEIGHT = 800
 H_OFFSET = 385
 WINDOW_WIDTH = 800 
@@ -19,7 +20,7 @@ YELLOW = (255, 255, 0)
 BLUE = (100, 140, 240)
 RED = (185, 40, 50)
 DARK_GREY = (80, 75, 80)
-
+# define font for displaying date
 FONT = pygame.font.SysFont('Times', 25)
 
 class Planet:
@@ -43,15 +44,12 @@ class Planet:
         self.x_velocity = 0
         self.y_velocity = 0
         
-        
-        
         self.orbit = []
         self.draw_orbit = []
         
-        
     def draw(self, WINDOW):
-        
-        a = self.x * Planet.SCALE + (W_OFFSET)
+        # convert physical distances to pixel locations 
+        a = self.x * Planet.SCALE + (W_OFFSET) 
         b = self.y * Planet.SCALE + (H_OFFSET)
         self.draw_orbit.append((a, b))
         
@@ -60,7 +58,6 @@ class Planet:
             pygame.draw.lines(WINDOW, WHITE, False, self.draw_orbit, width = 2)
         
         pygame.draw.circle(WINDOW, self.colour, (a, b), self.radius)
-        
         
     def gravitation(self, other):
         
@@ -77,7 +74,6 @@ class Planet:
         
         return (force_x, force_y)
         
-    
     def evolve(self, planets):
     
         tot_force_x = 0
