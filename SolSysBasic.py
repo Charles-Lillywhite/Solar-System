@@ -1,5 +1,7 @@
+# import modules
 import pygame
 import math
+from random import randint, uniform
 from astropy.time import Time
 from astroquery.jplhorizons import Horizons
 import datetime
@@ -23,6 +25,7 @@ DARK_GREY = (80, 75, 80)
 # define font for displaying date
 FONT = pygame.font.SysFont('Times', 25)
 
+# define planet class, attributes, methods.
 class Planet:
     
     AU = 1.495979e11 # metres in 1 Astronomical Unit
@@ -53,10 +56,11 @@ class Planet:
         b = self.y * Planet.SCALE + (H_OFFSET)
         self.draw_orbit.append((a, b))
         
+        # draw planet
         if len(self.orbit) > 2:
-            
             pygame.draw.lines(WINDOW, WHITE, False, self.draw_orbit, width = 2)
-        
+            
+        # draw orbital path
         pygame.draw.circle(WINDOW, self.colour, (a, b), self.radius)
         
     def gravitation(self, other):
@@ -104,10 +108,27 @@ class Planet:
         WINDOW.blit(curr_date, (10, 10))
         
         Planet.DATE += datetime.timedelta(days = 1)
+
+# make an aesthetic background
+class BGstar:
+    
+    def __init__(self):
+        self.x = randint(0, WINDOW_WIDTH)
+        self.y = randint(0, WINDOW_HEIGHT)
+        self.radius = uniform(1.0, 2.5)
+        self.colour = WHITE
+    
+stars = [BGstar() for i in range(100)]
+def drawStars():
+    for star in stars:
+        pygame.draw.circle(WINDOW, star.colour, (star.x, star.y), star.radius)
+
         
 def simulate():
     
     running = True
+    paused = False
+ 
     clock = pygame.time.Clock()
     
     sun = Planet(0, 0, 28, 1.98892e30, YELLOW)
@@ -136,20 +157,28 @@ def simulate():
     planets = [sun, earth, mars, mercury, venus]
     
     while running:
-        clock.tick(45)
-        WINDOW.fill((0, 0, 0))
-        Planet.display_date()
 
         for event in pygame.event.get():
+            
             if event.type == pygame.QUIT:
                 running = False
+            
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:# Pausing/Unpausing
+                    paused = not paused
         
-        for planet in planets:
-            planet.evolve(planets)
-            planet.draw(WINDOW)
+        if not paused:
+            
+            clock.tick(45)
+            WINDOW.fill((0, 0, 0))
+            Planet.display_date()
+            drawStars()
+            for planet in planets:
+                planet.evolve(planets)
+                planet.draw(WINDOW)
         
         pygame.display.update()
-    
+        
     pygame.quit()
 
 if __name__ == '__main__':
