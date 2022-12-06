@@ -56,11 +56,11 @@ class Planet:
         b = self.y * Planet.SCALE + (H_OFFSET)
         self.draw_orbit.append((a, b))
         
-        # draw planet
+        # draw orbital path
         #if len(self.orbit) > 2:
             #pygame.draw.lines(WINDOW, WHITE, False, self.draw_orbit, width = 2)
             
-        # draw orbital path
+        # draw planet
         pygame.draw.circle(WINDOW, self.colour, (a, b), self.radius)
         
     def gravitation(self, other):
