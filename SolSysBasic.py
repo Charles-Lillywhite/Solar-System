@@ -57,8 +57,8 @@ class Planet:
         self.draw_orbit.append((a, b))
         
         # draw planet
-        if len(self.orbit) > 2:
-            pygame.draw.lines(WINDOW, WHITE, False, self.draw_orbit, width = 2)
+        #if len(self.orbit) > 2:
+            #pygame.draw.lines(WINDOW, WHITE, False, self.draw_orbit, width = 2)
             
         # draw orbital path
         pygame.draw.circle(WINDOW, self.colour, (a, b), self.radius)
@@ -111,52 +111,60 @@ class Planet:
 
 # make an aesthetic background
 class BGstar:
+    zoom = Planet.SCALE
+    
     
     def __init__(self):
-        self.x = randint(0, WINDOW_WIDTH)
-        self.y = randint(0, WINDOW_HEIGHT)
+        self.x = randint(-2*Planet.AU, 2*Planet.AU)
+        self.y = randint(-2*Planet.AU, 2*Planet.AU)
+        
         self.radius = uniform(1.0, 2.5)
         self.colour = WHITE
+        
+    def drawStar(self):
+        a = self.x * BGstar.zoom + (W_OFFSET) 
+        b = self.y * BGstar.zoom + (H_OFFSET)
+        pygame.draw.circle(WINDOW, self.colour, (a, b), self.radius)
+
     
-stars = [BGstar() for i in range(100)]
-def drawStars():
-    for star in stars:
-        pygame.draw.circle(WINDOW, star.colour, (star.x, star.y), star.radius)
+stars = [BGstar() for i in range(200)]
 
         
 def simulate():
     
     running = True
     paused = False
- 
+    
+    
     clock = pygame.time.Clock()
     
     sun = Planet(0, 0, 28, 1.98892e30, YELLOW)
 
     earth_ICs = Horizons(id = 3, location="@sun", epochs=Time(str(Planet.DATE)).jd, id_type='id').vectors()
     earth = Planet(earth_ICs['x'][0] * Planet.AU , earth_ICs['y'][0] * Planet.AU , 16, 5.9742e24, BLUE)
-    earth.x_velocity = earth_ICs['vx'][0] * Planet.AU * Planet.INV_TD
-    earth.y_velocity = earth_ICs['vy'][0] * Planet.AU * Planet.INV_TD
+    earth.x_velocity = -earth_ICs['vx'][0] * Planet.AU * Planet.INV_TD
+    earth.y_velocity = -earth_ICs['vy'][0] * Planet.AU * Planet.INV_TD
 
     
     mars_ICs = Horizons(id = 4, location="@sun", epochs=Time(str(Planet.DATE)).jd, id_type='id').vectors()
     mars = Planet(mars_ICs['x'][0] * Planet.AU , mars_ICs['y'][0] * Planet.AU , 12, 6.39e23, RED)
-    mars.x_velocity = mars_ICs['vx'][0] * Planet.AU * Planet.INV_TD
-    mars.y_velocity = mars_ICs['vy'][0] * Planet.AU * Planet.INV_TD
+    mars.x_velocity = -mars_ICs['vx'][0] * Planet.AU * Planet.INV_TD
+    mars.y_velocity = -mars_ICs['vy'][0] * Planet.AU * Planet.INV_TD
 
     mercury_ICs = Horizons(id = 1, location="@sun", epochs=Time(str(Planet.DATE)).jd, id_type='id').vectors()
     mercury = Planet(mercury_ICs['x'][0] * Planet.AU , mercury_ICs['y'][0] * Planet.AU, 8, 3.30e23, WHITE)
-    mercury.x_velocity = mercury_ICs['vx'][0] * Planet.AU * Planet.INV_TD
-    mercury.y_velocity = mercury_ICs['vy'][0] * Planet.AU * Planet.INV_TD
+    mercury.x_velocity = -mercury_ICs['vx'][0] * Planet.AU * Planet.INV_TD
+    mercury.y_velocity = -mercury_ICs['vy'][0] * Planet.AU * Planet.INV_TD
 
     venus_ICs = Horizons(id = 2, location="@sun", epochs=Time(str(Planet.DATE)).jd, id_type='id').vectors()
     venus = Planet(venus_ICs['x'][0] * Planet.AU , venus_ICs['y'][0] * Planet.AU, 14, 4.8685e24, DARK_GREY)
-    venus.x_velocity = venus_ICs['vx'][0] * Planet.AU * Planet.INV_TD
-    venus.y_velocity = venus_ICs['vy'][0] * Planet.AU * Planet.INV_TD
+    venus.x_velocity = -venus_ICs['vx'][0] * Planet.AU * Planet.INV_TD
+    venus.y_velocity = -venus_ICs['vy'][0] * Planet.AU * Planet.INV_TD
 
     planets = [sun, earth, mars, mercury, venus]
     
     while running:
+        
 
         for event in pygame.event.get():
             
@@ -164,21 +172,36 @@ def simulate():
                 running = False
             
             if event.type == pygame.KEYDOWN:
+                
                 if event.key == pygame.K_SPACE:# Pausing/Unpausing
                     paused = not paused
+                    
+                if event.key == pygame.K_i:
+                    Planet.SCALE *= 1.1
+                    BGstar.zoom *= 1.005
+                    for planet in planets:
+                        planet.radius *= 1.1
+                    
+                if event.key == pygame.K_o:
+                    Planet.SCALE *= 0.90909
+                    BGstar.zoom *= 0.99502
+                    for planet in planets:
+                        planet.radius *= 0.90909
+
         
         if not paused:
             
             clock.tick(45)
             WINDOW.fill((0, 0, 0))
             Planet.display_date()
-            drawStars()
+            for star in stars:
+                BGstar.drawStar(star)
             for planet in planets:
                 planet.evolve(planets)
                 planet.draw(WINDOW)
         
         pygame.display.update()
-        
+    
     pygame.quit()
 
 if __name__ == '__main__':
